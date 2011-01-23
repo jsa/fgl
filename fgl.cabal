@@ -1,4 +1,4 @@
-name:		fgl
+name:		fgl-bin
 version:	5.4.2.3
 license:	BSD3
 license-file:	LICENSE
@@ -37,6 +37,6 @@ exposed-modules:
 	Data.Graph.Inductive.Query.SP,
 	Data.Graph.Inductive.Query.TransClos,
 	Data.Graph.Inductive
-build-depends:	base < 5, mtl, containers, array
+build-depends:	base < 5, mtl, containers, array, binary
 extensions: MultiParamTypeClasses, OverlappingInstances, FlexibleInstances, ScopedTypeVariables
 build-type: Simple

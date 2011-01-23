@@ -22,6 +22,7 @@ module Data.Graph.Inductive.PatriciaTree
     )
     where
 
+import qualified Data.Binary as B
 import           Data.Graph.Inductive.Graph
 import           Data.IntMap (IntMap)
 import qualified Data.IntMap as IM
@@ -71,6 +72,11 @@ instance DynGraph Gr where
               !g3 = addPred g2 v s
           in
             Gr g3
+
+
+instance (B.Binary a, B.Binary b) => B.Binary (Gr a b) where
+    put (Gr g) = B.put g
+    get = B.get >>= \m -> return $ Gr m
 
 
 matchGr :: Node -> Gr a b -> Decomp Gr a b
