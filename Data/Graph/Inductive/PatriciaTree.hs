@@ -66,12 +66,20 @@ instance Graph Gr where
 
 
 instance DynGraph Gr where
-    (p, v, l, s) & (Gr g)
-        = let !g1 = IM.insert v (fromAdj p, l, fromAdj s) g
-              !g2 = addSucc g1 v p
-              !g3 = addPred g2 v s
+    (ps, v, l, ss) & (Gr g)
+        = let g1 = case IM.lookup v g of
+                     Just (ps', _, ss') ->
+                       (\g' -> clearPred g' v dss)
+                       (clearSucc g v dps)
+                       where
+                         dps = filter (not . flip elem (map snd ps)) (IM.keys ps')
+                         dss = filter (not . flip elem (map snd ss)) (IM.keys ss')
+                     _ -> g
+              g2 = IM.insert v (fromAdj ps, l, fromAdj ss) g1
+              g3 = addSucc g2 v ps
+              !g4 = addPred g3 v ss
           in
-            Gr g3
+            Gr g4
 
 
 instance (B.Binary a, B.Binary b) => B.Binary (Gr a b) where
