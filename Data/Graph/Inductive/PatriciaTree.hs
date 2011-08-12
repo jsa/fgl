@@ -34,7 +34,7 @@ import           Control.Arrow(second)
 newtype Gr a b = Gr (GraphRep a b)
 
 type GraphRep a b = IntMap (Context' a b)
-type Context' a b = (IntMap [b], a, IntMap [b])
+type Context' a b = (IntMap b, a, IntMap b)
 
 type UGr = Gr () ()
 
@@ -60,8 +60,7 @@ instance Graph Gr where
                     ix = fst . fst . fromJust
 
     labEdges (Gr g) = do (node, (_, _, s)) <- IM.toList g
-                         (next, labels)    <- IM.toList s
-                         label             <- labels
+                         (next, label)     <- IM.toList s
                          return (node, next, label)
 
 
@@ -121,8 +120,8 @@ fastInsEdge (v, w, l) (Gr g) = g2 `seq` Gr g2
       g1 = IM.adjust addSucc' v g
       g2 = IM.adjust addPred' w g1
 
-      addSucc' (ps, l', ss) = (ps, l', IM.insertWith addLists w [l] ss)
-      addPred' (ps, l', ss) = (IM.insertWith addLists v [l] ps, l', ss)
+      addSucc' (ps, l', ss) = (ps, l', IM.insert w l ss)
+      addPred' (ps, l', ss) = (IM.insert v l ps, l', ss)
 
 
 {-# RULES
@@ -152,17 +151,15 @@ fastEMap :: forall a b c. (b -> c) -> Gr a b -> Gr a c
 fastEMap f (Gr g) = Gr (IM.map f' g)
     where
       f' :: Context' a b -> Context' a c
-      f' (ps, a, ss) = (IM.map (map f) ps, a, IM.map (map f) ss)
+      f' (ps, a, ss) = (IM.map f ps, a, IM.map f ss)
 
 
-toAdj :: IntMap [b] -> Adj b
-toAdj = concatMap expand . IM.toList
-  where
-    expand (n,ls) = map (flip (,) n) ls
+toAdj :: IntMap b -> Adj b
+toAdj = map swap . IM.toList
 
 
-fromAdj :: Adj b -> IntMap [b]
-fromAdj = IM.fromListWith addLists . map (second return . swap)
+fromAdj :: Adj b -> IntMap b
+fromAdj = IM.fromList . map swap
 
 
 toContext :: Node -> Context' a b -> Context a b
@@ -179,21 +176,12 @@ swap :: (a, b) -> (b, a)
 swap (a, b) = (b, a)
 
 
--- A version of @++@ where order isn't important, so @xs ++ [x]@
--- becomes @x:xs@.  Used when we have to have a function of type @[a]
--- -> [a] -> [a]@ but one of the lists is just going to be a single
--- element (and it isn't possible to tell which).
-addLists :: [a] -> [a] -> [a]
-addLists [a] as  = a : as
-addLists as  [a] = a : as
-addLists xs  ys  = xs ++ ys
-
 addSucc :: GraphRep a b -> Node -> [(b, Node)] -> GraphRep a b
 addSucc g _ []              = g
 addSucc g v ((l, p) : rest) = addSucc g' v rest
     where
       g' = IM.adjust f p g
-      f (ps, l', ss) = (ps, l', IM.insertWith addLists v [l] ss)
+      f (ps, l', ss) = (ps, l', IM.insert v l ss)
 
 
 addPred :: GraphRep a b -> Node -> [(b, Node)] -> GraphRep a b
@@ -201,7 +189,7 @@ addPred g _ []              = g
 addPred g v ((l, s) : rest) = addPred g' v rest
     where
       g' = IM.adjust f s g
-      f (ps, l', ss) = (IM.insertWith addLists v [l] ps, l', ss)
+      f (ps, l', ss) = (IM.insert v l ps, l', ss)
 
 
 clearSucc :: GraphRep a b -> Node -> [Node] -> GraphRep a b
