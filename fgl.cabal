@@ -38,5 +38,5 @@ exposed-modules:
 	Data.Graph.Inductive.Query.TransClos,
 	Data.Graph.Inductive
 build-depends:	base < 5, mtl, containers, array, binary
-extensions: MultiParamTypeClasses, OverlappingInstances, FlexibleInstances, ScopedTypeVariables
+extensions: BangPatterns, MultiParamTypeClasses, OverlappingInstances, FlexibleInstances, ScopedTypeVariables
 build-type: Simple
