@@ -29,6 +29,7 @@ import qualified Data.IntMap as IM
 import           Data.List
 import           Data.Maybe
 import           Control.Arrow(second)
+import           Control.DeepSeq
 
 
 newtype Gr a b = Gr (GraphRep a b)
@@ -76,6 +77,9 @@ instance DynGraph Gr where
 instance (B.Binary a, B.Binary b) => B.Binary (Gr a b) where
     put (Gr g) = B.put g
     get = B.get >>= \m -> return $ Gr m
+
+instance (NFData a, NFData b) => NFData (Gr a b) where
+    rnf (Gr g) = rnf g
 
 
 matchGr :: Node -> Gr a b -> Decomp Gr a b
