@@ -37,8 +37,7 @@ exposed-modules:
 	Data.Graph.Inductive.Query.SP,
 	Data.Graph.Inductive.Query.TransClos,
 	Data.Graph.Inductive
-extensions:	UnboxedTuples
 build-depends:	base < 5, mtl, containers, array, binary, deepseq
-extensions: BangPatterns, MultiParamTypeClasses, OverlappingInstances, FlexibleInstances, ScopedTypeVariables
+extensions: BangPatterns, MultiParamTypeClasses, OverlappingInstances, FlexibleInstances, ScopedTypeVariables, UnboxedTuples
 build-type: Simple
 ghc-options:	-funbox-strict-fields -O2 -msse4.2 -optc-ffast-math
