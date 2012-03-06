@@ -17,7 +17,7 @@
 -- * 'Data.Graph.Inductive.Graph.emap'
 
 module Data.Graph.Inductive.PatriciaTree
-    ( Gr(..)
+    ( Gr
     , UGr
     )
     where
